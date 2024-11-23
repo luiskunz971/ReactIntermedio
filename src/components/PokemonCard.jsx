@@ -12,7 +12,7 @@ const PokemonCard = ({ handleClick, pokemon }) => {
                     alt={pokemon.name}
                 />
                 <CardContent>
-                    <Typography gutterBottom variant="h5" component="div">
+                    <Typography gutterBottom variant="h5" component="div" textAlign="center">
                         {pokemon.name}
                     </Typography>
                 </CardContent>

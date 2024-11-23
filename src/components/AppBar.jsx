@@ -15,7 +15,6 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 
-
 const drawerWidth = 240;
 const navItems = [{nombre: 'Home', ruta: "/"}, {nombre:'Batalla', ruta:"/Battle"}, {nombre: 'Ranking', ruta:"/Ranking"}];
 

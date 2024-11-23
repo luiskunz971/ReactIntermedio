@@ -1,23 +1,37 @@
 import React, { useState } from 'react';
-import { Select, MenuItem, Container, Typography, Box, Paper, Button } from '@mui/material';
-
+import { Select, MenuItem, Container, Typography, Box, Paper, Button} from '@mui/material';
 import { usePokemonContext } from '../contexts/PokemonContext';
 import BattleDialog from '../components/BattleDialog';
 import PokemonCard from '../components/PokemonCard';
 import { obtainPokemonWithName } from '../utils/methods';
+import ErrorDialog from '../components/ErrorDialog';
+import { errorDescBattle } from '../utils/constants';
 
 const Battle = () => {
     const { pokemons } = usePokemonContext();
     const [open, setOpen] = useState(false);
     const [selectedPokemon1, setSelectedPokemon1] = useState(pokemons[1].name);
     const [selectedPokemon2, setSelectedPokemon2] = useState(pokemons[2].name);
+    const [error, setError] = useState(false)
 
     const handleOpen = () => {
-        setOpen(true);
+        if (selectedPokemon1 === selectedPokemon2) {
+            handleOpenError();
+        } else {
+            setOpen(true);
+        }
     }
 
     const handleClose = () => {
         setOpen(false);
+    }
+
+    const handleOpenError = () => {
+        setError(true);
+    }
+
+    const handleCloseError = () => {
+        setError(false);
     }
 
     return (
@@ -63,6 +77,7 @@ const Battle = () => {
                 </Box>
             </Container>
             {open && <BattleDialog onClose={handleClose} pokemon1={selectedPokemon1} pokemon2={selectedPokemon2} />}
+            {error && <ErrorDialog text={errorDescBattle} onClose={handleCloseError} />}
         </>
 
     );

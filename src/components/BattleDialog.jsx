@@ -6,12 +6,25 @@ import { urlImg } from '../utils/constants';
 
 const StatusView = ({ pokemon }) => {
   const { pokemons } = usePokemonContext();
-
   if (pokemon) {
     return <img src={`${urlImg}${obtainPokemonWithName(pokemons, pokemon).url.split('/')[6]}.png`} alt="Img Pokemon" width={120} />
   } else {
     return <img src="reloj.png" alt="Pendiente" width={120} />
   }
+}
+
+const Round = ({ name, round, handleClick, disabled}) => {
+  return (
+    <>
+      <Button variant="contained" onClick={handleClick} disabled={disabled}>Luchar</Button>
+      {round ? <Typography color='green'>Ganador</Typography> : <Typography color='blue'>Pendiente</Typography>}
+      <DialogContentText textAlign="center">
+        {name}<br /> {round}
+      </DialogContentText>
+      <StatusView pokemon={round} />
+    </>
+
+  );
 }
 
 const BattleDialog = ({ onClose, pokemon1, pokemon2 }) => {
@@ -30,22 +43,27 @@ const BattleDialog = ({ onClose, pokemon1, pokemon2 }) => {
 
   const handleWinner = () => {
     if (firstRound === secondRound) {
+      const perdedor = firstRound === pokemon1 ? pokemon2 : pokemon1;
       setWinner(firstRound);
-      actualizarPuntosGanador(firstRound);
+      actualizarPuntosGanador(firstRound, perdedor);
     } else if (firstRound === thirdRound) {
+      const perdedor = firstRound === pokemon1 ? pokemon2 : pokemon1;
       setWinner(firstRound);
-      actualizarPuntosGanador(firstRound);
+      actualizarPuntosGanador(firstRound, perdedor);
     } else if (secondRound === thirdRound) {
+      const perdedor = secondRound === pokemon1 ? pokemon2 : pokemon1;
       setWinner(secondRound);
-      actualizarPuntosGanador(secondRound);
+      actualizarPuntosGanador(secondRound, perdedor);
     }
   }
 
-  const actualizarPuntosGanador = (winner) => {
+  const actualizarPuntosGanador = (winner, looser) => {
     const nuevosPokemons = pokemons.map(pokemon => {
       if (pokemon.name === winner) {
-        return { ...pokemon, points: pokemon.points + 1, battle: pokemon.battle + 1 };
-      } else {
+        return { ...pokemon, points: pokemon.points + 1, battles: pokemon.battles + 1 };
+      } else if (pokemon.name === looser){
+        return { ...pokemon, battles: pokemon.battles + 1 };
+      }else {
         return pokemon;
       }
     });
@@ -62,31 +80,17 @@ const BattleDialog = ({ onClose, pokemon1, pokemon2 }) => {
       <DialogTitle color='primary' variant='h4' textAlign="center" id="pokemon-battle">
         Batalla de pokemon
       </DialogTitle>
+      
       <DialogContent>
         <Grid2 container>
           <Grid2 size={{ xs: 12, md: 4 }} display="flex" flexDirection="column" alignItems="center">
-            <Button variant="contained" onClick={() => handleClickRound(setFirstRound)} disabled={!!firstRound}>Luchar</Button>
-            {firstRound ? <Typography color='green'>Ganador</Typography> : <Typography color='blue'>Pendiente</Typography>}
-            <DialogContentText textAlign="center">
-              Primer round <br /> {firstRound}
-            </DialogContentText>
-            <StatusView pokemon={firstRound} />
+            <Round name="Primer round" round={firstRound} handleClick={() => handleClickRound(setFirstRound)} disabled={!!firstRound}/>
           </Grid2>
           <Grid2 size={{ xs: 12, md: 4 }} display="flex" flexDirection="column" alignItems="center">
-            <Button variant='contained' onClick={() => handleClickRound(setSecondRound)} disabled={!firstRound || !!secondRound}>Luchar</Button>
-            {secondRound ? <Typography color='green'>Ganador</Typography> : <Typography color='blue'>Pendiente</Typography>}
-            <DialogContentText textAlign="center">
-              Segundo round <br /> {secondRound}
-            </DialogContentText>
-            <StatusView pokemon={secondRound} />
+            <Round name="Segundo round" round={secondRound} handleClick={() => handleClickRound(setSecondRound)} disabled={!firstRound || !!secondRound}/>
           </Grid2>
           <Grid2 size={{ xs: 12, md: 4 }} display="flex" flexDirection="column" alignItems="center">
-            <Button variant='contained' onClick={() => handleClickRound(setThirdRound)} disabled={!secondRound || !!winner}>Luchar</Button>
-            {thirdRound ? <Typography color='green'>Ganador</Typography> : <Typography color='blue'>Pendiente</Typography>}
-            <DialogContentText textAlign="center">
-              Tercer round <br /> {thirdRound}
-            </DialogContentText>
-            <StatusView pokemon={thirdRound} />
+            <Round name="Tercer round" round={thirdRound} handleClick={() => handleClickRound(setThirdRound)} disabled={!secondRound || !!winner}/>
           </Grid2>
         </Grid2>
         {winner && <>
@@ -112,7 +116,7 @@ const BattleDialog = ({ onClose, pokemon1, pokemon2 }) => {
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>Cerrar</Button>
+        <Button variant='contained' onClick={onClose}>Cerrar</Button>
       </DialogActions>
     </Dialog>
   );

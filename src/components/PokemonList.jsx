@@ -1,28 +1,15 @@
-import React, { useState} from 'react';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    TextField,
-    Button,
-    Container,
-    InputAdornment,
-    IconButton,
-    Box,
-    Typography,
-} from '@mui/material';
+import React, { useState } from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Container, Box, Typography } from '@mui/material';
 import { usePokemonContext } from '../contexts/PokemonContext';
-
-import SearchIcon from '@mui/icons-material/Search';
+import TextFieldSearch from './TextFieldSerch';
+import PaginationCustom from './Pagination';
 
 function PokemonList() {
     const { pokemons } = usePokemonContext();
     const [searchTerm, setSearchTerm] = useState('');
     const [orderBy, setOrderBy] = useState('points');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     const filteredPokemons = pokemons
         .filter((pokemon) =>
@@ -38,26 +25,20 @@ function PokemonList() {
             return 0;
         });
 
+    const slicedPokemons = filteredPokemons.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handleChangePage = (event, newPage) => {
+        setCurrentPage(newPage);
+    };
+
     return (
-        <Container p={"0 2"}>
+        <Container sx={{ marginBottom: '1rem' }}>
             <Box display="flex" justifyContent="space-between" p={2}>
                 <Typography variant='h4' color='white'>Listado de Pokemons</Typography>
-                <TextField
-                    placeholder="Buscar Pokemón"
-                    size="small"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ backgroundColor: "white" }}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton onClick={(e) => setSearchTerm(e.target.value)}>
-                                    <SearchIcon />
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
+                <TextFieldSearch searchTerm={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
             </Box>
 
             <TableContainer component={Paper}>
@@ -74,11 +55,9 @@ function PokemonList() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredPokemons.map((pokemon) => (
+                        {slicedPokemons.map((pokemon) => (
                             <TableRow key={`detail-${pokemon.name}`}>
-                                <TableCell component="th" scope="row">
-                                    {pokemon.name}
-                                </TableCell>
+                                <TableCell component="th" scope="row">{pokemon.name}</TableCell>
                                 <TableCell align="right">{pokemon.type}</TableCell>
                                 <TableCell align="right">{pokemon.base_experience}</TableCell>
                                 <TableCell align="right">{pokemon.weight}</TableCell>
@@ -90,6 +69,7 @@ function PokemonList() {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <PaginationCustom count={Math.ceil(filteredPokemons.length / itemsPerPage)} currentPage={currentPage} onChange={handleChangePage}/>
         </Container>
     );
 }
